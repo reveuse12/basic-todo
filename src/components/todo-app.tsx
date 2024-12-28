@@ -8,25 +8,25 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Todo } from "@prisma/client";
 
-export default function TodoApp(todo: Todo[] | null) {
-  const [todos, setTodos] = useState<Todo[]>(todo ?? []);
-  const [newTodo, setNewTodo] = useState<Todo>();
+type TodoAppProps = {
+  todo: Todo[] | null;
+};
 
-  if (!todo || todo.length === 0) {
-    return <div>No Todo..</div>;
-  }
+export default function TodoApp({ todo }: TodoAppProps) {
+  const [todos, setTodos] = useState<Todo[]>(todo ?? []);
+  const [newTodo, setNewTodo] = useState<string>("");
 
   const addTodo = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newTodo?.title.trim()) {
+    if (newTodo.trim()) {
       setTodos([
         ...todos,
         {
-          id: Date.now(),
-          title: newTodo,
+          id: `${Date.now()}`,
+          title: newTodo.trim(),
           description: null,
           completed: false,
-          priority: "LOW",
+          priority: "MEDIUM", // Default priority
           dueDate: null,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -34,7 +34,7 @@ export default function TodoApp(todo: Todo[] | null) {
           listId: null,
         },
       ]);
-      setNewTodo([]);
+      setNewTodo(""); // Clear input after adding
     }
   };
 
@@ -53,7 +53,7 @@ export default function TodoApp(todo: Todo[] | null) {
   const remainingTodos = todos.filter((todo) => !todo.completed).length;
 
   return (
-    <div className="min-h-screen w-screen  bg-gradient-to-b from-gray-50 to-gray-100 py-8 px-4">
+    <div className="min-h-screen w-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">
           Tasks

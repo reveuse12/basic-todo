@@ -11,7 +11,7 @@ async function Page() {
 
   return (
     <div className="min-w-full h-full flex items-center justify-center">
-      <TodoApp todos={todos} />
+      <TodoApp todo={todos ? todos : null} />
     </div>
   );
 }
