@@ -1,9 +1,19 @@
-import React from "react";
-// import { Sidebar } from "@/components/ui/sidebar";
+import TodoApp from "@/components/todo-app";
+import { PrismaClient } from "@prisma/client";
 
-const page = () => {
-  // const [open, setOpen] = useState(false);
-  return <div>Inside the Dashboard</div>;
-};
+// Create a single instance of PrismaClient
+const prisma = new PrismaClient();
 
-export default page;
+// Mark the component as async to fetch data
+async function Page() {
+  // Fetch todos directly in the component
+  const todos = await prisma.todo.findMany();
+
+  return (
+    <div className="min-w-full h-full flex items-center justify-center">
+      <TodoApp todos={todos} />
+    </div>
+  );
+}
+
+export default Page;
