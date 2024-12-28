@@ -1,0 +1,183 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  password      String // Hashed password
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  todos         Todo[]
+  lists         List[]
+  teams         TeamMember[]
+  notifications Notification[]
+  settings      UserSettings?
+
+  @@index([email])
+}
+
+model UserSettings {
+  id                 String  @id @default(cuid())
+  userId             String  @unique
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailNotifications Boolean @default(true)
+  pushNotifications  Boolean @default(true)
+  theme              String  @default("light")
+  timezone           String  @default("UTC")
+}
+
+model Todo {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  completed   Boolean      @default(false)
+  priority    Priority     @default(MEDIUM)
+  dueDate     DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listId      String?
+  list        List?        @relation(fields: [listId], references: [id])
+  labels      Label[]
+  attachments Attachment[]
+  subtasks    Subtask[]
+  comments    Comment[]
+
+  @@index([userId])
+  @@index([listId])
+  @@index([completed])
+  @@index([dueDate])
+}
+
+model Subtask {
+  id        String   @id @default(cuid())
+  title     String
+  completed Boolean  @default(false)
+  todoId    String
+  todo      Todo     @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([todoId])
+}
+
+model List {
+  id        String   @id @default(cuid())
+  name      String
+  color     String?
+  icon      String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  todos     Todo[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  shared    Boolean  @default(false)
+
+  @@index([userId])
+}
+
+model Label {
+  id        String   @id @default(cuid())
+  name      String
+  color     String
+  todos     Todo[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  type      String
+  size      Int
+  todoId    String
+  todo      Todo     @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([todoId])
+}
+
+model Team {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  members     TeamMember[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  role      TeamRole @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, teamId])
+  @@index([userId])
+  @@index([teamId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  todoId    String
+  todo      Todo     @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([todoId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  content   String
+  read      Boolean          @default(false)
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([read])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum NotificationType {
+  TODO_ASSIGNED
+  TODO_DUE_SOON
+  TODO_COMPLETED
+  COMMENT_ADDED
+  TEAM_INVITATION
+}
