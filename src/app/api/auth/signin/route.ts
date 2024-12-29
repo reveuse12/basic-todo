@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { DBprisma } from "@/lib/db";
-import { generateToken, verifyPassword } from "@/lib/helpers/auth";
+import { generateRefreshToken, verifyPassword } from "@/lib/helpers/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,8 +26,11 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
 
-    const token = generateToken({ email: user.email, name: user.name });
-    const refreshToken = generateToken({ email: user.email, name: user.name });
+    const token = generateRefreshToken({ email: user.email, name: user.name });
+    const refreshToken = generateRefreshToken({
+      email: user.email,
+      name: user.name,
+    });
 
     const response = NextResponse.json({ message: "Login Successful", token });
     response.headers.set(
