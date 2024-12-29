@@ -26,7 +26,7 @@ export default function TodoApp({ todo }: TodoAppProps) {
           title: newTodo.trim(),
           description: null,
           completed: false,
-          priority: "MEDIUM", // Default priority
+          priority: "MEDIUM",
           dueDate: null,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -34,7 +34,7 @@ export default function TodoApp({ todo }: TodoAppProps) {
           listId: null,
         },
       ]);
-      setNewTodo(""); // Clear input after adding
+      setNewTodo("");
     }
   };
 
