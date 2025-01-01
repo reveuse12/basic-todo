@@ -3,13 +3,17 @@ import { verifyAuthToken } from "@/lib/helpers/auth";
 import { Todo } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, params: { id: string }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const { success, error, data: tokenData } = await verifyAuthToken(req);
     if (!success || !tokenData) {
       return error;
     }
     const { id } = params;
+    console.log(id, "todo");
     // find todo by id
     const todo = await DBprisma.todo.findFirst({
       where: { id, userId: tokenData.email },

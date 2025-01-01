@@ -1,20 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Todo } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 type TodoAppProps = {
-  todo: Todo[] | null;
+  initialTodos: Todo[];
 };
 
-export default function TodoApp({ todo }: TodoAppProps) {
-  const [todos, setTodos] = useState<Todo[]>(todo ?? []);
+export default function TodoApp({ initialTodos }: TodoAppProps) {
+  const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [newTodo, setNewTodo] = useState<string>("");
+
+  useEffect(() => {
+    const fetchTodos = async () => {
+      const todosFromDB = await prisma.todo.findMany();
+      setTodos(todosFromDB);
+    };
+
+    fetchTodos();
+  }, []);
 
   const addTodo = (e: React.FormEvent) => {
     e.preventDefault();
