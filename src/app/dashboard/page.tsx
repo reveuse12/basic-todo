@@ -10,8 +10,8 @@ async function Page() {
   const todos = await prisma.todo.findMany();
 
   return (
-    <div className="min-w-full h-full flex items-center justify-center">
-      <TodoApp todo={todos ? todos : null} />
+    <div className="min-w-full h-full flex-grow flex items-center justify-center">
+      <TodoApp initialTodos={todos ? todos : null} />
     </div>
   );
 }

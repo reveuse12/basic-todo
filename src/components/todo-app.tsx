@@ -12,11 +12,11 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 type TodoAppProps = {
-  initialTodos: Todo[];
+  initialTodos: Todo[] | null;
 };
 
 export default function TodoApp({ initialTodos }: TodoAppProps) {
-  const [todos, setTodos] = useState<Todo[]>(initialTodos);
+  const [todos, setTodos] = useState<Todo[]>(initialTodos || []);
   const [newTodo, setNewTodo] = useState<string>("");
 
   useEffect(() => {
@@ -63,6 +63,10 @@ export default function TodoApp({ initialTodos }: TodoAppProps) {
   };
 
   const remainingTodos = todos.filter((todo) => !todo.completed).length;
+
+  if (initialTodos === null) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8 px-4">
