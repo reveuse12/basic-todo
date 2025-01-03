@@ -1,3 +1,4 @@
+import Dashboard from "@/components/dashboard";
 import TodoApp from "@/components/todo-app";
 import { PrismaClient } from "@prisma/client";
 
@@ -10,9 +11,9 @@ async function Page() {
   const todos = await prisma.todo.findMany();
 
   return (
-    <div className="min-w-full h-full flex-grow flex items-center justify-center">
-      <TodoApp initialTodos={todos ? todos : null} />
-    </div>
+    // <div className="min-w-full h-full flex-grow flex items-center justify-center">
+    <Dashboard />
+    // </div>
   );
 }
 
