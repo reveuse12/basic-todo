@@ -23,6 +23,10 @@ import {
 } from "@/components/ui/card";
 import { Icons } from "./icons";
 import { useState } from "react";
+import { signin } from "@/app/actions";
+import { useToast } from "@/hooks/use-toast";
+import { authStore } from "@/store";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -33,7 +37,10 @@ const formSchema = z.object({
   }),
 });
 
-export default function LoginForm() {
+export default function SigninForm() {
+  const { toast } = useToast();
+  const { login } = authStore();
+  const navigate = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   // Initialize the form with validation schema
@@ -43,19 +50,27 @@ export default function LoginForm() {
       email: "",
       password: "",
     },
-    mode: "onChange",
   });
 
   // Handle form submission
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    console.log(values);
-    setIsLoading(false);
-  }
+    try {
+      const res = await signin(values);
+      login(res.user, res.token, res.refreshToken);
+      toast({ title: res.message });
+      navigate.push("/dashboard");
+    } catch (error) {
+      console.log("error", error);
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+      form.reset();
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">

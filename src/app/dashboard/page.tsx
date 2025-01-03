@@ -1,14 +1,18 @@
+"use client";
 import Dashboard from "@/components/dashboard";
-import TodoApp from "@/components/todo-app";
-import { PrismaClient } from "@prisma/client";
+// import TodoApp from "@/components/todo-app";
+import { authStore } from "@/store";
+// import { PrismaClient } from "@prisma/client";
 
 // Create a single instance of PrismaClient
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 // Mark the component as async to fetch data
-async function Page() {
+function Page() {
   // Fetch todos directly in the component
-  const todos = await prisma.todo.findMany();
+  // const todos = await prisma.todo.findMany();
+  const { user, token } = authStore();
+  console.log("user", user, "token", token);
 
   return <Dashboard />;
 }

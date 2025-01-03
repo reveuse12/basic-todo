@@ -32,7 +32,12 @@ export async function POST(req: NextRequest) {
       name: user.name,
     });
 
-    const response = NextResponse.json({ message: "Login Successful", token });
+    const response = NextResponse.json({
+      message: "Login Successful",
+      token,
+      refreshToken,
+      user: { email: user.email, name: user.name },
+    });
     response.headers.set(
       "Set-Cookie",
       `auth=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=3600, refresh=${refreshToken}; Path=/api/auth/refresh; HttpOnly; SameSite=Strict; Max-Age=604800`

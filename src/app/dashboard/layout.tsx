@@ -3,7 +3,14 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { links, Logo, LogoIcon } from "@/components/common";
+import { Logo, LogoIcon } from "@/components/common";
+import {
+  IconArrowLeft,
+  IconBrandTabler,
+  IconSettings,
+  IconUserBolt,
+} from "@tabler/icons-react";
+import { LogoutDialog, useLogout } from "@/components/logout";
 
 const MainLayout = ({
   children,
@@ -11,6 +18,40 @@ const MainLayout = ({
   children: React.ReactNode;
 }>) => {
   const [open, setOpen] = useState(false);
+  const { handleLogout, showConfirmation, setShowConfirmation, confirmLogout } =
+    useLogout();
+
+  const links = [
+    {
+      label: "Dashboard",
+      href: "/dashboard",
+      icon: (
+        <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Profile",
+      href: "/dashboard/profile",
+      icon: (
+        <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Settings",
+      href: "/dashboard/settings",
+      icon: (
+        <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Logout",
+      href: "#",
+      icon: (
+        <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+      onClick: () => handleLogout(),
+    },
+  ];
   return (
     <div
       className={cn(
@@ -47,6 +88,12 @@ const MainLayout = ({
         </SidebarBody>
       </Sidebar>
       {children}
+
+      <LogoutDialog
+        isOpen={showConfirmation}
+        onClose={() => setShowConfirmation(false)}
+        onConfirm={confirmLogout}
+      />
     </div>
   );
 };
