@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/card";
 import { Icons } from "./icons";
 import { useState } from "react";
+import { signup } from "@/app/actions";
+import { useToast } from "@/hooks/use-toast";
 
 // Define the form validation schema
 const formSchema = z
@@ -50,6 +52,8 @@ const formSchema = z
   });
 
 export default function SignUpForm() {
+  const { toast } = useToast();
+
   const [isLoading, setIsLoading] = useState(false);
 
   // Initialize the form with validation schema
@@ -64,15 +68,23 @@ export default function SignUpForm() {
   });
 
   // Handle form submission
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    console.log(values);
-    setIsLoading(false);
-  }
+    try {
+      const res = await signup(values);
+      toast({ title: res.message });
+      form.reset();
+    } catch (error) {
+      console.error("error", error);
+      toast({
+        title: "Error",
+        description: "Failed to create account. Please try again later.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">

@@ -10,11 +10,7 @@ async function Page() {
   // Fetch todos directly in the component
   const todos = await prisma.todo.findMany();
 
-  return (
-    // <div className="min-w-full h-full flex-grow flex items-center justify-center">
-    <Dashboard />
-    // </div>
-  );
+  return <Dashboard />;
 }
 
 export default Page;

@@ -31,7 +31,7 @@ const MainLayout = ({
             <SidebarLink
               link={{
                 label: "Prayag Bagthariya",
-                href: "#",
+                href: "/dashboard/profile",
                 icon: (
                   <Image
                     src="/profile-pic.png"
