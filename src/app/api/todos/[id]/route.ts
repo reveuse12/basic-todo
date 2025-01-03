@@ -3,16 +3,20 @@ import { verifyAuthToken } from "@/lib/helpers/auth";
 import { Todo } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
+type Params = {
+  id: string;
+};
+
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<Params> }
 ) {
   try {
     const { success, error, data: tokenData } = await verifyAuthToken(req);
     if (!success || !tokenData) {
       return error;
     }
-    const { id } = params;
+    const { id } = await params;
     console.log(id, "todo");
     // find todo by id
     const todo = await DBprisma.todo.findFirst({
@@ -35,7 +39,7 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<Params> }
 ) {
   try {
     const { success, error, data: tokenData } = await verifyAuthToken(req);
@@ -51,7 +55,7 @@ export async function PATCH(
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     const existingTodo = await DBprisma.todo.findFirst({
       where: {
@@ -101,7 +105,7 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<Params> }
 ) {
   try {
     const { success, error, data: tokenData } = await verifyAuthToken(req);
@@ -117,7 +121,7 @@ export async function DELETE(
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     const todo = await DBprisma.todo.findUnique({
       where: { id },

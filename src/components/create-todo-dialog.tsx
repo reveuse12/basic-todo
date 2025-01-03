@@ -1,13 +1,12 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { format } from "date-fns"
-import { CalendarIcon } from 'lucide-react'
-
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -16,47 +15,46 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Calendar } from "@/components/ui/calendar"
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
-import { CreateTodoInput } from "../types/todo"
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { CreateTodoInput } from "@/types/todo";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]),
   dueDate: z.date().optional(),
-})
+});
 
 interface CreateTodoDialogProps {
-  onCreateTodo: (data: CreateTodoInput) => Promise<void>
+  onCreateTodo: (data: CreateTodoInput) => Promise<void>;
 }
 
 export function CreateTodoDialog({ onCreateTodo }: CreateTodoDialogProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,12 +63,12 @@ export function CreateTodoDialog({ onCreateTodo }: CreateTodoDialogProps) {
       description: "",
       priority: "MEDIUM",
     },
-  })
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await onCreateTodo(values)
-    form.reset()
-    setOpen(false)
+    await onCreateTodo(values);
+    form.reset();
+    setOpen(false);
   }
 
   return (
@@ -82,7 +80,7 @@ export function CreateTodoDialog({ onCreateTodo }: CreateTodoDialogProps) {
         <DialogHeader>
           <DialogTitle>Create Todo</DialogTitle>
           <DialogDescription>
-            Create a new todo item. Click save when you're done.
+            Create a new todo item. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -107,10 +105,7 @@ export function CreateTodoDialog({ onCreateTodo }: CreateTodoDialogProps) {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Enter todo description"
-                      {...field}
-                    />
+                    <Textarea placeholder="Enter todo description" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -190,6 +185,5 @@ export function CreateTodoDialog({ onCreateTodo }: CreateTodoDialogProps) {
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

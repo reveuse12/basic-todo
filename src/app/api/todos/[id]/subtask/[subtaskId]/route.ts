@@ -7,7 +7,10 @@ type Params = {
   subtaskId: string;
 };
 
-export async function PATCH(req: NextRequest, { params }: { params: Params }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<Params> }
+) {
   try {
     const { success, error, data: tokenData } = await verifyAuthToken(req);
     if (!success || !tokenData) {
@@ -58,7 +61,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: Params }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<Params> }
+) {
   try {
     const { success, error, data: tokenData } = await verifyAuthToken(req);
     if (!success || !tokenData) {
@@ -70,7 +76,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Params }) {
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-    const { id, subtaskId } = params;
+    const { id, subtaskId } = await params;
 
     const deletedSubtask = await DBprisma.subtask.delete({
       where: { id: subtaskId, todoId: id },

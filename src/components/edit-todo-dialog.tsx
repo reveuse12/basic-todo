@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { format } from "date-fns"
-import { CalendarIcon } from 'lucide-react'
+import { useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -23,37 +23,37 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Calendar } from "@/components/ui/calendar"
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
-import { Todo } from "../types/todo"
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Todo } from "@prisma/client";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]),
   dueDate: z.date().optional(),
-})
+});
 
 interface EditTodoDialogProps {
-  todo: Todo | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onEditTodo: (id: string, data: Partial<Todo>) => Promise<void>
+  todo: Todo | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onEditTodo: (id: string, data: Partial<Todo>) => Promise<void>;
 }
 
 export function EditTodoDialog({
@@ -69,23 +69,23 @@ export function EditTodoDialog({
       description: "",
       priority: "MEDIUM",
     },
-  })
+  });
 
   useEffect(() => {
     if (todo) {
       form.reset({
         title: todo.title,
-        description: todo.description,
+        description: todo.description!,
         priority: todo.priority,
-        dueDate: todo.dueDate,
-      })
+        dueDate: todo.dueDate!,
+      });
     }
-  }, [todo, form])
+  }, [todo, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (todo) {
-      await onEditTodo(todo.id, values)
-      onOpenChange(false)
+      await onEditTodo(todo.id, values);
+      onOpenChange(false);
     }
   }
 
@@ -95,7 +95,7 @@ export function EditTodoDialog({
         <DialogHeader>
           <DialogTitle>Edit Todo</DialogTitle>
           <DialogDescription>
-            Make changes to your todo item. Click save when you're done.
+            Make changes to your todo item. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -201,6 +201,5 @@ export function EditTodoDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

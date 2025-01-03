@@ -15,7 +15,10 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: Params }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<Params> }
+) {
   try {
     const { success, error, data: tokenData } = await verifyAuthToken(req);
     if (!success || !tokenData) {

@@ -26,10 +26,8 @@ const initialTodos: Todo[] = [
     dueDate: new Date(2024, 0, 10),
     createdAt: new Date(),
     updatedAt: new Date(),
-    labels: [
-      { id: "1", name: "Work", color: "#0ea5e9" },
-      { id: "2", name: "Important", color: "#f43f5e" },
-    ],
+    userId: "",
+    listId: null,
   },
   // Add more mock todos as needed
 ];
@@ -62,13 +60,14 @@ export default function Dashboard() {
     const newTodo: Todo = {
       id: Math.random().toString(),
       title: data.title!,
-      description: data.description,
+      description: data.description!,
       completed: false,
       priority: data.priority!,
-      dueDate: data.dueDate,
+      dueDate: data.dueDate!,
       createdAt: new Date(),
       updatedAt: new Date(),
-      labels: [],
+      userId: "",
+      listId: null,
     };
     setTodos((prev) => [...prev, newTodo]);
   };

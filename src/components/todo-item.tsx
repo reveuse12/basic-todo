@@ -15,17 +15,13 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Todo as PrismaTodo } from "@prisma/client";
+import { Todo } from "@prisma/client";
 
-interface Label {
-  id: string;
-  color: string;
-  name: string;
-}
-
-interface Todo extends PrismaTodo {
-  labels: Label[];
-}
+// interface Label {
+//   id: string;
+//   color: string;
+//   name: string;
+// }
 
 interface TodoItemProps {
   todo: Todo;
@@ -102,7 +98,8 @@ export function TodoItem({
           >
             {todo.priority}
           </Badge>
-          {todo.labels.map(
+          {/* TODO to implement labels */}
+          {/* {todo.labels.map(
             (label: { id: string; color: string; name: string }) => (
               <Badge
                 key={label.id}
@@ -112,7 +109,7 @@ export function TodoItem({
                 {label.name}
               </Badge>
             )
-          )}
+          )} */}
         </div>
       </CardContent>
       {todo.dueDate && (

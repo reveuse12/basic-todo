@@ -42,7 +42,6 @@ export function generateRefreshToken(payload: Pick<User, "email" | "name">) {
 
 interface TokenData {
   email: string;
-  // Add other token payload fields if needed
 }
 
 export async function verifyAuthToken(req: NextRequest): Promise<{
