@@ -49,10 +49,10 @@ export function TodoItem({
   };
 
   const priorityColors = {
-    LOW: "bg-slate-500",
-    MEDIUM: "bg-blue-500",
-    HIGH: "bg-yellow-500",
-    URGENT: "bg-red-500",
+    LOW: "bg-slate-500 text-white hover:text-slate-600 hover:bg-gray-200",
+    MEDIUM: "bg-blue-500 text-white hover:text-blue-600 hover:bg-gray-200",
+    HIGH: "bg-yellow-500 text-white hover:text-yellow-600 hover:bg-gray-200",
+    URGENT: "bg-red-500 text-white hover:text-red-600 hover:bg-gray-200",
   };
 
   return (

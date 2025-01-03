@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -14,6 +13,7 @@ import { EditTodoDialog } from "@/components/edit-todo-dialog";
 import { TodoItem } from "@/components/todo-item";
 import { ScrollArea } from "./ui/scroll-area";
 import { Todo } from "@prisma/client";
+import { fetchAllTodos } from "@/app/actions";
 
 // Mock data for initial todos
 const initialTodos: Todo[] = [
@@ -38,6 +38,20 @@ export default function Dashboard() {
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [filterPriority, setFilterPriority] = useState<string>("all");
+  const fetchTodos = async () => {
+    try {
+      const res = await fetchAllTodos();
+      console.log("Fetched todos", res.todos);
+      setTodos(res.todos);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
 
   const filteredTodos = todos.filter((todo) => {
     if (filterPriority === "all") return true;
@@ -92,8 +106,8 @@ export default function Dashboard() {
   };
 
   return (
-    <ScrollArea className="h-auto max-w-screen mx-auto py-10  rounded-md border p-4">
-      <div className="space-y-8">
+    <ScrollArea className="h-auto w-screen py-10  rounded-md border p-4">
+      <div className="space-y-8 space-x-2">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>

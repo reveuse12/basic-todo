@@ -3,6 +3,37 @@ import { DBprisma } from "@/lib/db";
 import { verifyAuthToken } from "@/lib/helpers/auth";
 import { Priority } from "@prisma/client";
 
+// fetch all todos
+export async function GET(req: NextRequest) {
+  try {
+    const { success, data: tokenData, error } = await verifyAuthToken(req);
+    if (!success || !tokenData) {
+      return error;
+    }
+
+    const user = await DBprisma.user.findUnique({
+      where: { email: tokenData.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    const todos = await DBprisma.todo.findMany({
+      where: { userId: user.id },
+      include: { labels: true },
+    });
+
+    return NextResponse.json({ todos }, { status: 200 });
+  } catch (error) {
+    console.log("Detailed error:", error);
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
 // create a new todo
 export async function POST(req: NextRequest) {
   try {
