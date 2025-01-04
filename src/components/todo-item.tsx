@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Todo } from "@prisma/client";
+import { Todo } from "@/types/todo";
 
 // interface Label {
 //   id: string;
@@ -100,17 +100,41 @@ export function TodoItem({
           </Badge>
           {/* TODO to implement labels */}
           {/* {todo.labels.map(
-            (label: { id: string; color: string; name: string }) => (
-              <Badge
-                key={label.id}
-                style={{ backgroundColor: label.color }}
-                className="text-white"
-              >
-                {label.name}
-              </Badge>
-            )
+        (label: { id: string; color: string; name: string }) => (
+          <Badge
+        key={label.id}
+        style={{ backgroundColor: label.color }}
+        className="text-white"
+          >
+        {label.name}
+          </Badge>
+        )
           )} */}
         </div>
+        {todo.subtasks && todo.subtasks.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-sm font-medium">Subtasks</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              {todo.subtasks.map((subtask) => (
+                <li
+                  key={subtask.id}
+                  className={cn(
+                    "flex items-center space-x-2",
+                    subtask.completed && "line-through text-gray-500"
+                  )}
+                >
+                  <Checkbox
+                    checked={subtask.completed}
+                    onCheckedChange={() => {
+                      // Handle subtask completion toggle
+                    }}
+                  />
+                  <span>{subtask.title}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </CardContent>
       {todo.dueDate && (
         <CardFooter className="text-sm text-muted-foreground">

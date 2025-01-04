@@ -5,9 +5,17 @@ export type Todo = {
   completed: boolean;
   priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   dueDate?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-  labels: Label[];
+  createdAt?: Date;
+  updatedAt?: Date;
+  labels?: Label[];
+  subtasks?: Subtask[];
+};
+
+export type Subtask = {
+  id: string;
+  title: string;
+  completed: boolean;
+  todoId: string;
 };
 
 export type Label = {

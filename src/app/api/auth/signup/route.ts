@@ -44,7 +44,8 @@ export async function POST(req: NextRequest) {
     // TODO Send Email For SignUp
 
     return NextResponse.json({ message: "Signup Successful" });
-  } catch {
+  } catch (error) {
+    console.log(JSON.stringify(error), "error");
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
     const todos = await DBprisma.todo.findMany({
       where: { userId: user.id },
-      include: { labels: true },
+      include: { labels: true, subtasks: true },
     });
 
     return NextResponse.json({ todos }, { status: 200 });

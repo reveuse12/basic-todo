@@ -12,8 +12,14 @@ import { CreateTodoDialog } from "@/components/create-todo-dialog";
 import { EditTodoDialog } from "@/components/edit-todo-dialog";
 import { TodoItem } from "@/components/todo-item";
 import { ScrollArea } from "./ui/scroll-area";
-import { Todo } from "@prisma/client";
-import { fetchAllTodos } from "@/app/actions";
+import {
+  createTodo,
+  deleteTodo,
+  fetchAllTodos,
+  updateTodo,
+} from "@/app/actions";
+import { useToast } from "@/hooks/use-toast";
+import { Todo } from "@/types/todo";
 
 // Mock data for initial todos
 const initialTodos: Todo[] = [
@@ -26,20 +32,18 @@ const initialTodos: Todo[] = [
     dueDate: new Date(2024, 0, 10),
     createdAt: new Date(),
     updatedAt: new Date(),
-    userId: "",
-    listId: null,
   },
   // Add more mock todos as needed
 ];
 
 export default function Dashboard() {
+  const { toast } = useToast();
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [filterPriority, setFilterPriority] = useState<string>("all");
   const fetchTodos = async () => {
     try {
       const res = await fetchAllTodos();
-      console.log("Fetched todos", res.todos);
       setTodos(res.todos);
     } catch (error) {
       console.error(error);
@@ -66,28 +70,58 @@ export default function Dashboard() {
       dueDate: data.dueDate!,
       createdAt: new Date(),
       updatedAt: new Date(),
-      userId: "",
-      listId: null,
     };
-    setTodos((prev) => [...prev, newTodo]);
+
+    try {
+      const res = await createTodo(newTodo);
+      setTodos((prev) => [...prev, newTodo]);
+      toast({ title: res.message });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+      });
+    }
   };
 
   const handleEditTodo = async (id: string, data: Partial<Todo>) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id
-          ? {
-              ...todo,
-              ...data,
-              updatedAt: new Date(),
-            }
-          : todo
-      )
-    );
+    try {
+      const updatedTodo = { ...data, id } as Todo;
+      const res = await updateTodo(updatedTodo);
+      setTodos((prev) =>
+        prev.map((todo) =>
+          todo.id === id
+            ? {
+                ...todo,
+                ...data,
+                updatedAt: new Date(),
+              }
+            : todo
+        )
+      );
+      toast({ title: res.message });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+      });
+    }
   };
 
   const handleDeleteTodo = async (id: string) => {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    try {
+      const res = await deleteTodo(id);
+      toast({ title: res.message });
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+      });
+    }
   };
 
   const handleToggleComplete = async (id: string, completed: boolean) => {

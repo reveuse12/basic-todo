@@ -40,7 +40,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Todo } from "@prisma/client";
+import { Todo } from "@/types/todo";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
