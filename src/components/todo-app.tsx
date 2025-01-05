@@ -39,6 +39,7 @@ export default function TodoApp({ initialTodos }: TodoAppProps) {
           description: null,
           completed: false,
           priority: "MEDIUM",
+          status: "NOTSTARTED",
           dueDate: null,
           createdAt: new Date(),
           updatedAt: new Date(),
