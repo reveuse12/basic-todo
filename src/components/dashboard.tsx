@@ -29,6 +29,7 @@ const initialTodos: Todo[] = [
     description: "Write and submit the project proposal for the new client",
     completed: false,
     priority: "HIGH",
+    status: "NOTSTARTED",
     dueDate: new Date(2024, 0, 10),
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -41,6 +42,9 @@ export default function Dashboard() {
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [filterPriority, setFilterPriority] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  // const [subtask, setSubtask] = useState<Todo>();
+
   const fetchTodos = async () => {
     try {
       const res = await fetchAllTodos();
@@ -56,8 +60,10 @@ export default function Dashboard() {
   }, []);
 
   const filteredTodos = todos.filter((todo) => {
-    if (filterPriority === "all") return true;
-    return todo.priority === filterPriority;
+    const priorityMatch =
+      filterPriority === "all" || todo.priority === filterPriority;
+    const statusMatch = filterStatus === "all" || todo.status === filterStatus;
+    return priorityMatch && statusMatch;
   });
 
   const handleCreateTodo = async (data: Partial<Todo>) => {
@@ -66,6 +72,7 @@ export default function Dashboard() {
       title: data.title!,
       description: data.description!,
       completed: false,
+      status: data.status!,
       priority: data.priority!,
       dueDate: data.dueDate!,
       createdAt: new Date(),
@@ -110,6 +117,31 @@ export default function Dashboard() {
     }
   };
 
+  const handleToggleComplete = async (id: string, completed: boolean) => {
+    const updatedTodo = todos.find((todo) => todo.id === id);
+    if (!updatedTodo) return;
+
+    const newTodo = {
+      ...updatedTodo,
+      status: "DONE" as "NOTSTARTED" | "INPROGRESS" | "DONE",
+      completed,
+      updatedAt: new Date(),
+    };
+
+    setTodos((prev) => prev.map((todo) => (todo.id === id ? newTodo : todo)));
+
+    try {
+      const res = await updateTodo(newTodo);
+      toast({ title: res.message });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+      });
+    }
+  };
+
   const handleDeleteTodo = async (id: string) => {
     try {
       const res = await deleteTodo(id);
@@ -122,20 +154,6 @@ export default function Dashboard() {
         description: "An error occurred. Please try again.",
       });
     }
-  };
-
-  const handleToggleComplete = async (id: string, completed: boolean) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id
-          ? {
-              ...todo,
-              completed,
-              updatedAt: new Date(),
-            }
-          : todo
-      )
-    );
   };
 
   return (
@@ -162,6 +180,18 @@ export default function Dashboard() {
               <SelectItem value="MEDIUM">Medium</SelectItem>
               <SelectItem value="HIGH">High</SelectItem>
               <SelectItem value="URGENT">Urgent</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All status</SelectItem>
+              <SelectItem value="NOTSTARTED">NOTSTARTED</SelectItem>
+              <SelectItem value="INPROGESS">INPROGESS</SelectItem>
+              <SelectItem value="DONE">DONE</SelectItem>
             </SelectContent>
           </Select>
         </div>

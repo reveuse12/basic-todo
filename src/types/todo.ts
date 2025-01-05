@@ -4,6 +4,7 @@ export type Todo = {
   description?: string;
   completed: boolean;
   priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  status: "NOTSTARTED" | "INPROGRESS" | "DONE";
   dueDate?: Date;
   createdAt?: Date;
   updatedAt?: Date;
@@ -28,6 +29,7 @@ export type CreateTodoInput = {
   title: string;
   description?: string;
   priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  status: "NOTSTARTED" | "INPROGRESS" | "DONE";
   dueDate?: Date;
   labelIds?: string[];
 };

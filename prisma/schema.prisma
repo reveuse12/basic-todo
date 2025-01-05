@@ -45,6 +45,7 @@ model Todo {
   description String?
   completed   Boolean      @default(false)
   priority    Priority     @default(MEDIUM)
+  status      Status       @default(NOTSTARTED)
   dueDate     DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -66,6 +67,7 @@ model Todo {
 model Subtask {
   id        String   @id @default(cuid())
   title     String
+  status    Status   @default(NOTSTARTED)
   completed Boolean  @default(false)
   todoId    String
   todo      Todo     @relation(fields: [todoId], references: [id], onDelete: Cascade)
@@ -166,6 +168,12 @@ enum Priority {
   MEDIUM
   HIGH
   URGENT
+}
+
+enum Status {
+  NOTSTARTED
+  INPROGRESS
+  DONE
 }
 
 enum TeamRole {

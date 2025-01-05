@@ -34,7 +34,7 @@ export const createTodo = async (todo: Todo) => {
 // update todo
 export const updateTodo = async (todo: Todo) => {
   try {
-    const res = await axios.put(`/api/todos/${todo.id}`, todo, {
+    const res = await axios.patch(`/api/todos/${todo.id}`, todo, {
       headers: {
         Authorization: `Bearer ${getAuthToken()}`,
       },
@@ -54,6 +54,17 @@ export const deleteTodo = async (id: string) => {
         Authorization: `Bearer ${getAuthToken()}`,
       },
     });
+    return res.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+// add subtask to the todo
+export const addSubtaskTodo = async (todoId: string, subtask: Todo) => {
+  try {
+    const res = await axios.post(`/api/todo/${todoId}/subtask`, subtask);
     return res.data;
   } catch (error) {
     console.error(error);

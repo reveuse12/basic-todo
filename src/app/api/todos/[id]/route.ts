@@ -72,13 +72,15 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { title, description, priority, dueDate, listId, completed } = body;
+    const { title, description, priority, status, dueDate, listId, completed } =
+      body;
 
     const updateData: Partial<Todo> = {};
 
     if (title !== undefined) updateData.title = title.trim();
     if (description !== undefined) updateData.description = description.trim();
     if (priority !== undefined) updateData.priority = priority;
+    if (status !== undefined) updateData.status = status;
     if (dueDate !== undefined) updateData.dueDate = new Date(dueDate);
     if (listId !== undefined) updateData.listId = listId || null;
     if (completed !== undefined) updateData.completed = Boolean(completed);

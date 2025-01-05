@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { DBprisma } from "@/lib/db";
 import { verifyAuthToken } from "@/lib/helpers/auth";
-import { Priority } from "@prisma/client";
+import { Priority, Status } from "@prisma/client";
 
 // fetch all todos
 export async function GET(req: NextRequest) {
@@ -43,7 +43,8 @@ export async function POST(req: NextRequest) {
       return error;
     }
 
-    const { title, description, priority, dueDate, listId } = await req.json();
+    const { title, description, priority, status, dueDate, listId } =
+      await req.json();
 
     if (!title) {
       return NextResponse.json(
@@ -59,6 +60,16 @@ export async function POST(req: NextRequest) {
         {
           message:
             "Invalid priority value. Must be LOW, MEDIUM, HIGH, or URGENT",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (status && !Object.values(Status).includes(status)) {
+      return NextResponse.json(
+        {
+          message:
+            "Invalid status value. Must be NOTSTARTED, INPROGRESS, or DONE",
         },
         { status: 400 }
       );
@@ -92,6 +103,7 @@ export async function POST(req: NextRequest) {
         title: title.trim(),
         description: description?.trim(),
         priority: priority || Priority.MEDIUM,
+        status: status || Status.NOTSTARTED,
         dueDate: parsedDueDate,
         listId: listId || null,
         userId: user.id,

@@ -46,6 +46,7 @@ const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]),
+  status: z.enum(["NOTSTARTED", "INPROGRESS", "DONE"]),
   dueDate: z.date().optional(),
 });
 
@@ -68,6 +69,7 @@ export function EditTodoDialog({
       title: "",
       description: "",
       priority: "MEDIUM",
+      status: "NOTSTARTED",
     },
   });
 
@@ -77,6 +79,7 @@ export function EditTodoDialog({
         title: todo.title,
         description: todo.description!,
         priority: todo.priority,
+        status: todo.status,
         dueDate: todo.dueDate!,
       });
     }
@@ -158,6 +161,31 @@ export function EditTodoDialog({
             />
             <FormField
               control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="NOTSTARTED">NOTSTARTED</SelectItem>
+                      <SelectItem value="INPROGRESS">INPROGRESS</SelectItem>
+                      <SelectItem value="DONE">DONE</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="dueDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
@@ -194,6 +222,7 @@ export function EditTodoDialog({
                 </FormItem>
               )}
             />
+            {/* Add subtasks inside todo */}
             <DialogFooter>
               <Button type="submit">Save Changes</Button>
             </DialogFooter>

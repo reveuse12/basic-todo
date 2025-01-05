@@ -46,6 +46,7 @@ const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]),
+  status: z.enum(["NOTSTARTED", "INPROGRESS", "DONE"]),
   dueDate: z.date().optional(),
 });
 
@@ -62,6 +63,7 @@ export function CreateTodoDialog({ onCreateTodo }: CreateTodoDialogProps) {
       title: "",
       description: "",
       priority: "MEDIUM",
+      status: "NOTSTARTED",
     },
   });
 
@@ -131,6 +133,32 @@ export function CreateTodoDialog({ onCreateTodo }: CreateTodoDialogProps) {
                       <SelectItem value="MEDIUM">Medium</SelectItem>
                       <SelectItem value="HIGH">High</SelectItem>
                       <SelectItem value="URGENT">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="NOTSTARTED">NOTSTARTED</SelectItem>
+                      <SelectItem value="INPROGRESS">INPROGRESS</SelectItem>
+                      <SelectItem value="DONE">DONE</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

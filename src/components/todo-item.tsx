@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -51,6 +51,13 @@ export function TodoItem({
     URGENT: "bg-red-500 text-white hover:text-red-600 hover:bg-gray-200",
   };
 
+  const statusColors = {
+    NOTSTARTED:
+      "bg-orange-500 text-white hover:text-orange-600 hover:bg-gray-200",
+    INPROGRESS: "bg-sky-500 text-white hover:text-sky-600 hover:bg-green-200",
+    DONE: "bg-green-500 text-white hover:text-green-600 hover:bg-gray-200",
+  };
+
   return (
     <Card className={cn("transition-opacity", todo.completed && "opacity-60")}>
       <CardHeader className="pb-3">
@@ -75,6 +82,9 @@ export function TodoItem({
           </div>
           <div className="flex gap-2">
             <Button variant="ghost" size="icon" onClick={() => onEdit(todo)}>
+              <Plus className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => onEdit(todo)}>
               <Pencil className="h-4 w-4" />
             </Button>
             <Button
@@ -97,6 +107,12 @@ export function TodoItem({
             }
           >
             {todo.priority}
+          </Badge>
+          <Badge
+            variant="secondary"
+            className={statusColors[todo.status as keyof typeof statusColors]}
+          >
+            {todo.status}
           </Badge>
           {/* TODO to implement labels */}
           {/* {todo.labels.map(
