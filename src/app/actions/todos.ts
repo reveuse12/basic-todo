@@ -1,5 +1,5 @@
 import { getAuthToken } from "@/lib/helpers/authClient";
-import { Todo } from "@/types/todo";
+import { Subtask, Todo } from "@/types/todo";
 import axios from "axios";
 
 export const fetchAllTodos = async () => {
@@ -62,9 +62,39 @@ export const deleteTodo = async (id: string) => {
 };
 
 // add subtask to the todo
-export const addSubtaskTodo = async (todoId: string, subtask: Todo) => {
+export const createSubtask = async (
+  todoId: string,
+  subtask: Partial<Subtask>
+) => {
   try {
-    const res = await axios.post(`/api/todo/${todoId}/subtask`, subtask);
+    const res = await axios.post(`/api/todos/${todoId}/subtask`, subtask, {
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+// update the subtask todo
+export const updateSubtaskStatus = async (
+  todoId: string,
+  subtaskId: string,
+  completed: boolean
+) => {
+  try {
+    const res = await axios.patch(
+      `/api/todos/${todoId}/subtask/${subtaskId}`,
+      completed,
+      {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      }
+    );
     return res.data;
   } catch (error) {
     console.error(error);

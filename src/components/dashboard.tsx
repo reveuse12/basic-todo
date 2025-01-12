@@ -13,37 +13,26 @@ import { EditTodoDialog } from "@/components/edit-todo-dialog";
 import { TodoItem } from "@/components/todo-item";
 import { ScrollArea } from "./ui/scroll-area";
 import {
+  createSubtask,
   createTodo,
   deleteTodo,
   fetchAllTodos,
+  updateSubtaskStatus,
   updateTodo,
 } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
-import { Todo } from "@/types/todo";
-
-// Mock data for initial todos
-const initialTodos: Todo[] = [
-  {
-    id: "1",
-    title: "Complete project proposal",
-    description: "Write and submit the project proposal for the new client",
-    completed: false,
-    priority: "HIGH",
-    status: "NOTSTARTED",
-    dueDate: new Date(2024, 0, 10),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  // Add more mock todos as needed
-];
+import { Priority, Status, Subtask, Todo } from "@/types/todo";
+import { SubtaskPopup } from "./subtask-popup";
+import { AudioRecorder } from "./audio-recorder";
 
 export default function Dashboard() {
   const { toast } = useToast();
-  const [todos, setTodos] = useState<Todo[]>(initialTodos);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
-  const [filterPriority, setFilterPriority] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  // const [subtask, setSubtask] = useState<Todo>();
+  const [subtaskDialogOpen, setSubtaskDialogOpen] = useState(false);
+  const [parentTaskId, setParentTaskId] = useState<string>("");
+  const [filterPriority, setFilterPriority] = useState<"all" | Priority>("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | Status>("all");
 
   const fetchTodos = async () => {
     try {
@@ -77,6 +66,9 @@ export default function Dashboard() {
       dueDate: data.dueDate!,
       createdAt: new Date(),
       updatedAt: new Date(),
+      userId: "",
+      subtasks: [],
+      labels: [],
     };
 
     try {
@@ -113,6 +105,81 @@ export default function Dashboard() {
       toast({
         title: "Error",
         description: "An error occurred. Please try again.",
+      });
+    }
+  };
+
+  const handleSubtask = async (
+    parentTaskId: string,
+    subtaskData: Partial<Subtask>
+  ) => {
+    try {
+      const newSubtask: Partial<Subtask> = {
+        title: subtaskData.title,
+        status: subtaskData.status,
+        completed: subtaskData.status === "DONE",
+        todoId: parentTaskId,
+      };
+
+      const res = await createSubtask(parentTaskId, newSubtask);
+
+      setTodos((prev) =>
+        prev.map((todo) => {
+          if (todo.id === parentTaskId) {
+            return {
+              ...todo,
+              subtasks: [...(todo.subtasks || []), res.subtask],
+            };
+          }
+          return todo;
+        })
+      );
+
+      toast({
+        title: "Success",
+        description: "Subtask created successfully",
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "An error occurred while creating the subtask.",
+      });
+    }
+  };
+
+  const handleSubtaskComplete = async (
+    todoId: string,
+    subtaskId: string,
+    completed: boolean
+  ) => {
+    try {
+      setTodos((prev) =>
+        prev.map((todo) => {
+          if (todo.id === todoId) {
+            return {
+              ...todo,
+              subtasks: todo.subtasks?.map((subtask) =>
+                subtask.id === subtaskId
+                  ? {
+                      ...subtask,
+                      completed,
+                      status: completed ? "DONE" : "NOTSTARTED",
+                    }
+                  : subtask
+              ),
+            };
+          }
+          return todo;
+        })
+      );
+
+      await updateSubtaskStatus(todoId, subtaskId, completed);
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "An error occurred while updating the subtask.",
       });
     }
   };
@@ -166,11 +233,19 @@ export default function Dashboard() {
               Manage your todos and track your progress
             </p>
           </div>
-          <CreateTodoDialog onCreateTodo={handleCreateTodo} />
+          <div className="flex items-center gap-4">
+            <AudioRecorder />
+            <CreateTodoDialog onCreateTodo={handleCreateTodo} />
+          </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <Select value={filterPriority} onValueChange={setFilterPriority}>
+          <Select
+            value={filterPriority}
+            onValueChange={(value) =>
+              setFilterPriority(value as "all" | Priority)
+            }
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by priority" />
             </SelectTrigger>
@@ -183,7 +258,10 @@ export default function Dashboard() {
             </SelectContent>
           </Select>
 
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <Select
+            value={filterStatus}
+            onValueChange={(value) => setFilterStatus(value as "all" | Status)}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
@@ -204,6 +282,11 @@ export default function Dashboard() {
               onDelete={handleDeleteTodo}
               onToggleComplete={handleToggleComplete}
               onEdit={setEditingTodo}
+              setParentTaskId={(id) => {
+                setParentTaskId(id);
+                setSubtaskDialogOpen(true);
+              }}
+              completeSubtask={handleSubtaskComplete}
             />
           ))}
         </div>
@@ -213,6 +296,13 @@ export default function Dashboard() {
           open={!!editingTodo}
           onOpenChange={(open) => !open && setEditingTodo(null)}
           onEditTodo={handleEditTodo}
+        />
+
+        <SubtaskPopup
+          open={subtaskDialogOpen}
+          onOpenChange={setSubtaskDialogOpen}
+          parentTaskId={parentTaskId}
+          onSubmit={handleSubtask}
         />
       </div>
     </ScrollArea>

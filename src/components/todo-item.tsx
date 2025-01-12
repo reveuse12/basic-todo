@@ -28,13 +28,20 @@ interface TodoItemProps {
   onDelete: (id: string) => Promise<void>;
   onToggleComplete: (id: string, completed: boolean) => Promise<void>;
   onEdit: (todo: Todo) => void;
+  setParentTaskId: (id: string) => void;
+  completeSubtask: (
+    todoId: string,
+    subtaskId: string,
+    completed: boolean
+  ) => void;
 }
-
 export function TodoItem({
   todo,
   onDelete,
   onToggleComplete,
   onEdit,
+  setParentTaskId,
+  completeSubtask,
 }: TodoItemProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -81,7 +88,11 @@ export function TodoItem({
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="ghost" size="icon" onClick={() => onEdit(todo)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setParentTaskId(todo.id)}
+            >
               <Plus className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => onEdit(todo)}>
@@ -142,7 +153,11 @@ export function TodoItem({
                   <Checkbox
                     checked={subtask.completed}
                     onCheckedChange={() => {
-                      // Handle subtask completion toggle
+                      completeSubtask(
+                        subtask.todoId,
+                        subtask.id,
+                        subtask.completed
+                      );
                     }}
                   />
                   <span>{subtask.title}</span>
