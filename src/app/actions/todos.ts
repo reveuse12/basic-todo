@@ -101,3 +101,19 @@ export const updateSubtaskStatus = async (
     throw error;
   }
 };
+
+// audio todo creation
+export const audioTodoCreate = async (formData: FormData) => {
+  try {
+    const res = await axios.post(`/api/transcribe`, formData, {
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+        "Content-Type": "multipart/form-data", // Set correct content type
+      },
+    });
+    return res.data; // Ensure the backend returns the transcript
+  } catch (error) {
+    console.error("Error sending audio data:", error);
+    throw error;
+  }
+};

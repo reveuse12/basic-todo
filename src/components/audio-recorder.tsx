@@ -10,6 +10,7 @@ import {
   AudioWaveformIcon as Waveform,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { audioTodoCreate } from "@/app/actions";
 
 export function AudioRecorder() {
   const [isRecording, setIsRecording] = useState(false);
@@ -59,20 +60,9 @@ export function AudioRecorder() {
       const formData = new FormData();
       formData.append("audio", audioBlob);
 
-      // Simulate API call for transcription
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // In a real application, you would send the audio to your API endpoint
-      // const response = await fetch("/api/transcribe", {
-      //   method: "POST",
-      //   body: formData,
-      // })
-      // const data = await response.json()
-
-      // For demo, we'll set a sample transcript
-      setTranscript(
-        "This is a simulated transcript of your audio recording. In a real application, this would be the actual transcription of your speech."
-      );
+      // Pass the FormData to `audioTodoCreate`
+      const res = await audioTodoCreate(formData);
+      setTranscript(res.transcript); // Update based on backend response
     } catch (error) {
       console.error("Error processing audio:", error);
       setTranscript("Error processing audio. Please try again.");
