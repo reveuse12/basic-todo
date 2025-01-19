@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -43,104 +43,59 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "./ui/scroll-area";
-
-// Types based on your Prisma schema
-type User = {
-  id: string;
-  email: string;
-  name: string | null;
-  createdAt: Date;
-  settings: UserSettings;
-  teams: TeamMember[];
-  notifications: Notification[];
-};
-
-type UserSettings = {
-  emailNotifications: boolean;
-  pushNotifications: boolean;
-  theme: string;
-  timezone: string;
-};
-
-type TeamMember = {
-  team: {
-    name: string;
-    description: string | null;
-  };
-  role: "OWNER" | "ADMIN" | "MEMBER";
-};
-
-type Notification = {
-  id: string;
-  type:
-    | "TODO_ASSIGNED"
-    | "TODO_DUE_SOON"
-    | "TODO_COMPLETED"
-    | "COMMENT_ADDED"
-    | "TEAM_INVITATION";
-  content: string;
-  read: boolean;
-  createdAt: Date;
-};
+import { fetchProfile } from "@/app/actions";
+import { User, UserSettings } from "@/types/user";
 
 // Form Schema
 const profileFormSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
 });
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<User>({
-    id: "1",
-    email: "user@example.com",
-    name: "John Doe",
-    createdAt: new Date(),
-    settings: {
-      emailNotifications: true,
-      pushNotifications: true,
-      theme: "light",
-      timezone: "UTC",
-    },
-    teams: [
-      {
-        team: {
-          name: "Development Team",
-          description: "Main development team",
-        },
-        role: "ADMIN",
-      },
-    ],
-    notifications: [
-      {
-        id: "1",
-        type: "TODO_ASSIGNED",
-        content: "You have been assigned a new task",
-        read: false,
-        createdAt: new Date(),
-      },
-    ],
-  });
+  const { toast } = useToast();
+  const [user, setUser] = useState<Partial<User>>({}); // Initially empty user data
 
   const form = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      name: user.name || "",
-      email: user.email,
+      name: "",
+      email: "",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof profileFormSchema>) {
-    // Here you would update the user profile
-    console.log(values);
-  }
+  const fetchUserProfile = async () => {
+    try {
+      const res = await fetchProfile();
+      setUser(res);
+      form.reset({
+        name: res.name || "",
+        email: res.email || "",
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch the user profile.",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const handleFormSubmit = async (
+    values: z.infer<typeof profileFormSchema>
+  ) => {
+    // Submit updated profile data
+    console.log("Submitted Values:", values);
+  };
 
   return (
-    <ScrollArea className="h-auto container mx-auto py-10  rounded-md border p-4">
+    <ScrollArea className="h-auto container mx-auto py-10 rounded-md border p-4">
       <div className="space-y-8">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
@@ -151,7 +106,8 @@ export default function ProfilePage() {
           <div>
             <h1 className="text-2xl font-bold">{user.name}</h1>
             <p className="text-muted-foreground">
-              Member since {format(user.createdAt, "MMMM yyyy")}
+              Member since{" "}
+              {user.createdAt && format(new Date(user.createdAt), "MMMM yyyy")}
             </p>
           </div>
         </div>
@@ -168,7 +124,7 @@ export default function ProfilePage() {
             <CardContent>
               <Form {...form}>
                 <form
-                  onSubmit={form.handleSubmit(onSubmit)}
+                  onSubmit={form.handleSubmit(handleFormSubmit)}
                   className="space-y-4"
                 >
                   <FormField
@@ -197,101 +153,93 @@ export default function ProfilePage() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit">Update profile</Button>
+                  <Button type="submit">Update Profile</Button>
                 </form>
               </Form>
             </CardContent>
           </Card>
 
           {/* Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Settings</CardTitle>
-              <CardDescription>
-                Manage your notification preferences and app settings.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label
-                    htmlFor="email-notifications"
-                    className="flex flex-col gap-1"
-                  >
-                    <span>Email Notifications</span>
-                    <span className="font-normal text-muted-foreground">
-                      Receive email notifications about your tasks
-                    </span>
-                  </Label>
-                  <Switch
-                    id="email-notifications"
-                    checked={user.settings.emailNotifications}
-                    onCheckedChange={(checked) =>
-                      setUser((prev) => ({
-                        ...prev,
-                        settings: {
-                          ...prev.settings,
-                          emailNotifications: checked,
-                        },
-                      }))
-                    }
-                  />
+          {user.settings && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Settings</CardTitle>
+                <CardDescription>
+                  Manage your notification preferences and app settings.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label>Email Notifications</Label>
+                    <Switch
+                      checked={user.settings?.emailNotifications ?? false}
+                      onCheckedChange={(checked) =>
+                        setUser((prev) => ({
+                          ...prev,
+                          settings: {
+                            emailNotifications: checked ?? false,
+                            pushNotifications:
+                              prev?.settings?.pushNotifications ?? false,
+                            theme: prev?.settings?.theme ?? "light",
+                            timezone: prev?.settings?.timezone ?? "UTC",
+                          } satisfies UserSettings,
+                        }))
+                      }
+                    />
+                  </div>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <Label>Push Notifications</Label>
+                    <Switch
+                      checked={user.settings?.pushNotifications ?? false}
+                      onCheckedChange={(checked) =>
+                        setUser((prev) => ({
+                          ...prev,
+                          settings: {
+                            emailNotifications:
+                              prev?.settings?.emailNotifications ?? false,
+                            pushNotifications: checked,
+                            theme: prev?.settings?.theme ?? "light",
+                            timezone: prev?.settings?.timezone ?? "UTC",
+                          } satisfies UserSettings,
+                        }))
+                      }
+                    />
+                  </div>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <Label>Theme</Label>
+                    <Select
+                      value={user.settings?.theme ?? "light"}
+                      onValueChange={(value) =>
+                        setUser((prev) => ({
+                          ...prev,
+                          settings: {
+                            emailNotifications:
+                              prev?.settings?.emailNotifications ?? false,
+                            pushNotifications:
+                              prev?.settings?.pushNotifications ?? false,
+                            theme: value,
+                            timezone: prev?.settings?.timezone ?? "UTC",
+                          },
+                        }))
+                      }
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select theme" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="light">Light</SelectItem>
+                        <SelectItem value="dark">Dark</SelectItem>
+                        <SelectItem value="system">System</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <Label
-                    htmlFor="push-notifications"
-                    className="flex flex-col gap-1"
-                  >
-                    <span>Push Notifications</span>
-                    <span className="font-normal text-muted-foreground">
-                      Receive push notifications about your tasks
-                    </span>
-                  </Label>
-                  <Switch
-                    id="push-notifications"
-                    checked={user.settings.pushNotifications}
-                    onCheckedChange={(checked) =>
-                      setUser((prev) => ({
-                        ...prev,
-                        settings: {
-                          ...prev.settings,
-                          pushNotifications: checked,
-                        },
-                      }))
-                    }
-                  />
-                </div>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="theme" className="flex flex-col gap-1">
-                    <span>Theme</span>
-                    <span className="font-normal text-muted-foreground">
-                      Select your preferred theme
-                    </span>
-                  </Label>
-                  <Select
-                    value={user.settings.theme}
-                    onValueChange={(value) =>
-                      setUser((prev) => ({
-                        ...prev,
-                        settings: { ...prev.settings, theme: value },
-                      }))
-                    }
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select a theme" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
-                      <SelectItem value="system">System</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Teams */}
@@ -311,11 +259,9 @@ export default function ProfilePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {user.teams.map((teamMember, index) => (
+                {user.teams?.map((teamMember, index) => (
                   <TableRow key={index}>
-                    <TableCell className="font-medium">
-                      {teamMember.team.name}
-                    </TableCell>
+                    <TableCell>{teamMember.team.name}</TableCell>
                     <TableCell>{teamMember.team.description}</TableCell>
                     <TableCell>{teamMember.role}</TableCell>
                     <TableCell className="text-right">
@@ -330,7 +276,7 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Recent Notifications */}
+        {/* Notifications */}
         <Card>
           <CardHeader>
             <CardTitle>Recent Notifications</CardTitle>
@@ -338,22 +284,20 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {user.notifications.map((notification) => (
+              {user.notifications?.map((notification) => (
                 <div
                   key={notification.id}
-                  className="flex items-center gap-4 rounded-lg border p-4"
+                  className="flex items-center gap-4 border p-4 rounded-lg"
                 >
                   <Bell className="h-5 w-5 text-muted-foreground" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">
-                      {notification.content}
-                    </p>
+                  <div>
+                    <p>{notification.content}</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(notification.createdAt, "PPp")}
+                      {format(new Date(notification.createdAt), "PPp")}
                     </p>
                   </div>
                   {!notification.read && (
-                    <div className="h-2 w-2 rounded-full bg-blue-500" />
+                    <div className="h-2 w-2 bg-blue-500 rounded-full" />
                   )}
                 </div>
               ))}
