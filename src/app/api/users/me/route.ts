@@ -162,7 +162,7 @@ export async function PATCH(req: NextRequest) {
     });
     return NextResponse.json({
       message: "Profile Updated successfully !!",
-      updatedUser,
+      user: updatedUser,
     });
   } catch (error) {
     console.log(JSON.stringify(error));

@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "./ui/scroll-area";
-import { fetchProfile } from "@/app/actions";
+import { fetchProfile, updateProfile } from "@/app/actions";
 import { User, UserSettings } from "@/types/user";
 
 // Form Schema
@@ -90,8 +90,21 @@ export default function ProfilePage() {
   const handleFormSubmit = async (
     values: z.infer<typeof profileFormSchema>
   ) => {
-    // Submit updated profile data
-    console.log("Submitted Values:", values);
+    try {
+      const res = await updateProfile(values);
+      if (res) {
+        setUser(res.user);
+        toast({
+          title: res.message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch the user profile.",
+      });
+    }
   };
 
   return (
