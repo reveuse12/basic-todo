@@ -88,7 +88,7 @@ export const updateSubtaskStatus = async (
   try {
     const res = await axios.patch(
       `/api/todos/${todoId}/subtask/${subtaskId}`,
-      completed,
+      { completed },
       {
         headers: {
           Authorization: `Bearer ${getAuthToken()}`,

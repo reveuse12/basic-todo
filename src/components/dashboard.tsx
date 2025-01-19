@@ -175,6 +175,10 @@ export default function Dashboard() {
       );
 
       await updateSubtaskStatus(todoId, subtaskId, completed);
+      toast({
+        title: "Success",
+        description: "Subtask status updated successfully",
+      });
     } catch (error) {
       console.error(error);
       toast({

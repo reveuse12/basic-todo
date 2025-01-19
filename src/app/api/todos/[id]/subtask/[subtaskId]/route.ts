@@ -17,12 +17,7 @@ export async function PATCH(
       return error;
     }
     const { title, completed } = await req.json();
-    if (!title) {
-      return NextResponse.json(
-        { message: "Title is required" },
-        { status: 400 }
-      );
-    }
+
     const user = await DBprisma.user.findUnique({
       where: { email: tokenData.email },
     });

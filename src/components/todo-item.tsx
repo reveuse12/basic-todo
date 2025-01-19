@@ -153,11 +153,7 @@ export function TodoItem({
                   <Checkbox
                     checked={subtask.completed}
                     onCheckedChange={() => {
-                      completeSubtask(
-                        subtask.todoId,
-                        subtask.id,
-                        subtask.completed
-                      );
+                      completeSubtask(subtask.todoId, subtask.id, true);
                     }}
                   />
                   <span>{subtask.title}</span>
